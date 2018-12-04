@@ -1,3 +1,3 @@
-#### Grapher HTML5 prototype.
+#### Веб-приложение для многопараметрического графического анализа.
 
-Библиотек для построения графика: [Recharts](https://github.com/recharts/recharts)
+Библиотека для построения графика: [Recharts](https://github.com/recharts/recharts)
