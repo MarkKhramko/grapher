@@ -2,6 +2,14 @@ import React, { Component } from "react";
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import {
+  sine,
+  func1,
+  func2_t_t,
+  func2_t_5,
+  func2_t_10
+} from '../utils/ExpressionService';
+
 import { 
   CartesianGrid,
   LineChart,
@@ -9,7 +17,7 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
-  ReferenceLine
+  ReferenceLine,
 } from 'recharts';
 
 import Fab from '@material-ui/core/Fab';
@@ -19,26 +27,31 @@ import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
-import Icon from '@material-ui/core/Icon';
 
-const RANGE = 10;
+import ParametersControls from '../components/ParametersControls';
+
+const RANGE = 60;
 
 class HomeScreen extends Component {
 
   constructor(props){
     super(props);
 
+    const localParamA = localStorage.getItem("a");
+    const localParamB = localStorage.getItem("b");
+    const localParamC = localStorage.getItem("c");
+
     this.state={
-      zoomScale: 1,
+      zoomScale: 0.25,
       xOffset: 0,
       yOffset: 0,
 
       data:[],
 
       params: {
-        a: 0,
-        b: 0,
-        c: 0
+        a: !!localParamA ? localParamA : 1,
+        b: !!localParamB ? localParamB : 1,
+        c: !!localParamC ? localParamC : 1
       }
     };
 
@@ -50,6 +63,15 @@ class HomeScreen extends Component {
   }
 
   /* Interactions */
+  _handleParamChange(paramKey, value){
+    const params = {...this.state.params};
+    params[paramKey] = value;
+    this.setState({ params });
+    this._setTimerForDataCount();
+
+    localStorage.setItem(paramKey, value);
+  }
+
   _handleZoomIn(){
     let zoomScale = this.state.zoomScale;
     zoomScale = zoomScale / 2;
@@ -126,15 +148,25 @@ class HomeScreen extends Component {
     }, 10);
   }
 
-  _doTheCount(zoomScale, xOffset, yOffset){
+  _doTheCount(zoomScale, xOffset, yOffset, params){
+    const a = params.a;
+    const b = params.b;
+    const c = params.c;
+
     const data = [];
     for (let i = -RANGE; i <= RANGE; i += 1){
-      const x = i + xOffset;
-      const data1 = Math.pow(x, 2) * zoomScale;//Math.pow(mainParam, 2) - 10;
-      const xName = x * zoomScale;//Math.round(mainParam)/10;//(i % 200) === 0 ? `${i}` : "";
+
+      const x = (i + xOffset) * zoomScale;
+      const data1 = func1(x, a, b, c);
+      const xName = x;
+
+      // data2
+      const data2 = func2_t_5(x, a, b, c);
 
       data.push({
         data1,
+        data2,
+
         xName
       });
     }
@@ -146,16 +178,18 @@ class HomeScreen extends Component {
     const{
       zoomScale,
       xOffset,
-      yOffset
+      yOffset,
+      params
     }=this.state;
-    const data = await this._doTheCount(zoomScale, xOffset, yOffset);
+
+    const data = await this._doTheCount(zoomScale, xOffset, yOffset, params);
     this.setState({ data });
   }
 
   /* Render */
   _renderChartControlButtons(){
     return(
-      <div>
+      <div className="full-width-block bottom-margin-1x">
         <Fab 
           color="primary"
           aria-label="X +"
@@ -206,8 +240,8 @@ class HomeScreen extends Component {
 
   _renderParameterControls(windowWidth, params){
     return(
-      <div>
-        
+      <div className="full-width-block bottom-margin-1x">
+        { windowWidth }
       </div>
     );
   }
@@ -220,28 +254,35 @@ class HomeScreen extends Component {
 
     const{
       data,
+      zoomScale,
       xOffset,
       yOffset,
       params
     }=this.state;
 
-    const domainY = [-RANGE + yOffset, RANGE + yOffset];
-    const domainX = [-RANGE + xOffset, RANGE + xOffset];
+    const domainY = [
+      (-RANGE + yOffset) * zoomScale,
+      (RANGE + yOffset) * zoomScale
+    ];
+    const domainX = [
+      (-RANGE + xOffset) * zoomScale,
+      (RANGE + xOffset) * zoomScale
+    ];
 
     return (
       <div>
         <LineChart 
-          width={ windowWidth * 0.95 }
+          width={ windowWidth * 0.98 }
           height={ windowHeight * 0.78 }
           data={ data }
           stackOffset="sign"
           onClick={ this._handleChartClick.bind(this) }
           onMouseMove={ this._handleChartMove.bind(this) }
+          className="chart bottom-margin-1x"
         >
           <XAxis
             dataKey="xName"
             tick={true}
-            domain={['dataMin -5', 'dataMax + 5']}
             type="number"
             tickCount={ 8 }
             allowDataOverflow={ true }
@@ -258,12 +299,17 @@ class HomeScreen extends Component {
             strokeDasharray="5 5"
           />
           <Line type="monotone" dataKey="data1" stroke="#8884d8" isAnimationActive={false} dot={false}/>
+          <Line type="monotone" dataKey="data2" stroke="#ff84d8" isAnimationActive={false} dot={false}/>
           <ReferenceLine y={0} stroke="#000" />
           <ReferenceLine x={0} stroke="#000" />
         </LineChart>
 
         { this._renderChartControlButtons() }
-        { this._renderParameterControls(windowWidth, params) }
+        <ParametersControls
+          windowWidth={ windowWidth }
+          params={ params }
+          onParamChange={ this._handleParamChange.bind(this) }
+        />
       </div>
     );
   }
