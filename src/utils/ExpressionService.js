@@ -4,7 +4,12 @@ export function sine(x){
 }
 
 export function func1(x, a, b, c){
-	const y = a*(1-(1.1+c/100)^(-x))/(0.1+c/100)-b;
+	const y = a*(1- Math.pow((1.1+c/100),(-x)))/(0.1+c/100)-b;
+	return y;
+}
+
+export function func2(x, a, b, c){
+	const y = a/(x+0.00001)*(1-Math.pow((1+x), (-c)))-b;
 	return y;
 }
 

@@ -5,9 +5,7 @@ import { connect } from 'react-redux';
 import {
   sine,
   func1,
-  func2_t_t,
-  func2_t_5,
-  func2_t_10
+  func2
 } from '../utils/ExpressionService';
 
 import { 
@@ -20,17 +18,10 @@ import {
   ReferenceLine,
 } from 'recharts';
 
-import Fab from '@material-ui/core/Fab';
-import ArrowUpIcon from '@material-ui/icons/ArrowDropUp';
-import ArrowDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import AddIcon from '@material-ui/icons/Add';
-import RemoveIcon from '@material-ui/icons/Remove';
-
+import ChartControls from '../components/ChartControls';
 import ParametersControls from '../components/ParametersControls';
 
-const RANGE = 60;
+const RANGE = 200;
 
 class HomeScreen extends Component {
 
@@ -139,29 +130,21 @@ class HomeScreen extends Component {
   }
 
   /* Perfomance */
-  _setTimerForDataCount(){
-    if(this.zoomTimer !== null)
-      clearTimeout(this.zoomTimer);
-
-    this.zoomTimer = setTimeout(()=>{
-      this._countData();
-    }, 10);
-  }
-
   _doTheCount(zoomScale, xOffset, yOffset, params){
     const a = params.a;
     const b = params.b;
     const c = params.c;
 
     const data = [];
-    for (let i = -RANGE; i <= RANGE; i += 1){
+    for (let i = -RANGE; i <= RANGE; i += 0.2){
 
       const x = (i + xOffset) * zoomScale;
-      const data1 = func1(x, a, b, c);
+      // const data1 = func1(x, a, b, c);
+      const data1 = sine(x, a, b, c);
       const xName = x;
 
       // data2
-      const data2 = func2_t_5(x, a, b, c);
+      const data2 = func2(x, a, b, c);
 
       data.push({
         data1,
@@ -174,6 +157,23 @@ class HomeScreen extends Component {
     return data;
   }
 
+  _countDomains(xOffset, yOffset, zoomScale){
+    const domainX = [
+      (-RANGE + xOffset) * zoomScale,
+      (RANGE + xOffset) * zoomScale
+    ];
+
+    const domainY = [
+      (-RANGE + yOffset) * zoomScale,
+      (RANGE + yOffset) * zoomScale
+    ];
+
+    return [
+      domainX,
+      domainY
+    ];
+  }
+
   async _countData(){
     const{
       zoomScale,
@@ -183,69 +183,24 @@ class HomeScreen extends Component {
     }=this.state;
 
     const data = await this._doTheCount(zoomScale, xOffset, yOffset, params);
-    this.setState({ data });
+    const [domainX, domainY] = await this._countDomains(xOffset, yOffset, zoomScale);
+    this.setState({ 
+      data,
+      domainX,
+      domainY
+    });
+  }
+
+  _setTimerForDataCount(){
+    if(this.zoomTimer !== null)
+      clearTimeout(this.zoomTimer);
+
+    this.zoomTimer = setTimeout(()=>{
+      this._countData();
+    }, 10);
   }
 
   /* Render */
-  _renderChartControlButtons(){
-    return(
-      <div className="full-width-block bottom-margin-1x">
-        <Fab 
-          color="primary"
-          aria-label="X +"
-          onClick={ this._handleXMoveLeft.bind(this) }
-        >
-          <ArrowLeftIcon/>
-        </Fab>
-        <Fab 
-          color="primary"
-          aria-label="X -"
-          onClick={ this._handleXMoveRight.bind(this) }
-        >
-          <ArrowRightIcon/>
-        </Fab>
-        
-        <Fab 
-          color="primary"
-          aria-label="Y +"
-          onClick={ this._handleYMoveUp.bind(this) }
-        >
-          <ArrowUpIcon/>
-        </Fab>
-        <Fab 
-          color="primary"
-          aria-label="Y -"
-          onClick={ this._handleYMoveDown.bind(this) }
-        >
-          <ArrowDownIcon/>
-        </Fab>
-
-        <Fab 
-          color="primary"
-          aria-label="Увеличить масштаб"
-          onClick={ this._handleZoomIn.bind(this) }
-        >
-          <AddIcon/>
-        </Fab>
-        <Fab 
-          color="primary"
-          aria-label="Уменьшить масштаб"
-          onClick={ this._handleZoomOut.bind(this) }
-        >
-          <RemoveIcon/>
-        </Fab>
-      </div>
-    );
-  }
-
-  _renderParameterControls(windowWidth, params){
-    return(
-      <div className="full-width-block bottom-margin-1x">
-        { windowWidth }
-      </div>
-    );
-  }
-
   render() {
     const{
       windowWidth,
@@ -254,20 +209,10 @@ class HomeScreen extends Component {
 
     const{
       data,
-      zoomScale,
-      xOffset,
-      yOffset,
+      domainX,
+      domainY,
       params
     }=this.state;
-
-    const domainY = [
-      (-RANGE + yOffset) * zoomScale,
-      (RANGE + yOffset) * zoomScale
-    ];
-    const domainX = [
-      (-RANGE + xOffset) * zoomScale,
-      (RANGE + xOffset) * zoomScale
-    ];
 
     return (
       <div>
@@ -304,7 +249,14 @@ class HomeScreen extends Component {
           <ReferenceLine x={0} stroke="#000" />
         </LineChart>
 
-        { this._renderChartControlButtons() }
+        <ChartControls
+          onXMoveLeft={ this._handleXMoveLeft.bind(this) }
+          onXMoveRight={ this._handleXMoveRight.bind(this) }
+          onYMoveUp={ this._handleYMoveUp.bind(this) }
+          onYMoveDown={ this._handleYMoveDown.bind(this) }
+          onZoomIn={ this._handleZoomIn.bind(this) }
+          onZoomOut={ this._handleZoomOut.bind(this) }
+        />
         <ParametersControls
           windowWidth={ windowWidth }
           params={ params }
