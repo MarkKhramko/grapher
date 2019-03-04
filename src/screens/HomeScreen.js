@@ -43,10 +43,13 @@ class HomeScreen extends Component {
         a: !!localParamA ? localParamA : 1,
         b: !!localParamB ? localParamB : 1,
         c: !!localParamC ? localParamC : 1
-      }
+      },
+
+      measureLineX: 0
     };
 
     this.zoomTimer = null;
+    this.lineChart = null;
   }
 
   componentDidMount(){
@@ -66,6 +69,7 @@ class HomeScreen extends Component {
   _handleZoomIn(){
     let zoomScale = this.state.zoomScale;
     zoomScale = zoomScale / 2;
+    console.log({ zoomScale });
     this.setState({ zoomScale });
     this._setTimerForDataCount();
   }
@@ -73,6 +77,7 @@ class HomeScreen extends Component {
   _handleZoomOut(){
     let zoomScale = this.state.zoomScale;
     zoomScale = zoomScale * 2;
+    console.log({ zoomScale });
     this.setState({ zoomScale });
     this._setTimerForDataCount();
   }
@@ -81,10 +86,7 @@ class HomeScreen extends Component {
     let xOffset = this.state.xOffset;
     xOffset += 1;
 
-    this.setState({ 
-      xOffset
-    });
-
+    this.setState({ xOffset });
     this._setTimerForDataCount();
   }
 
@@ -92,10 +94,7 @@ class HomeScreen extends Component {
     let xOffset = this.state.xOffset;
     xOffset -= 1;
 
-    this.setState({ 
-      xOffset
-    });
-
+    this.setState({ xOffset });
     this._setTimerForDataCount();
   }
 
@@ -103,10 +102,7 @@ class HomeScreen extends Component {
     let yOffset = this.state.yOffset;
     yOffset -= 1;
     
-    this.setState({
-      yOffset
-    });
-
+    this.setState({ yOffset });
     this._setTimerForDataCount();
   }
 
@@ -114,10 +110,7 @@ class HomeScreen extends Component {
     let yOffset = this.state.yOffset;
     yOffset += 1;
 
-    this.setState({
-      yOffset
-    });
-
+    this.setState({ yOffset});
     this._setTimerForDataCount();
   }
 
@@ -126,7 +119,25 @@ class HomeScreen extends Component {
   }
 
   _handleChartMove(e){
-    // console.log({ e });
+    const{
+      domainX,
+      zoomScale,
+      xOffset
+    }=this.state;
+
+    if (e !== null && this.lineChart !== null){
+      const chartWidth = this.lineChart.props.width;
+
+      const maxX = domainX[1];
+      const minX = domainX[0] * (1 + 140/chartWidth);
+
+      const chartX = e.chartX;
+      const absoluteX = (chartX + 6)/chartWidth;
+      const pointX = absoluteX * maxX + minX * (1-absoluteX);
+      const measureLineX = pointX.toFixed(3);;
+      // console.log({ chartX });
+      this.setState({ measureLineX });
+    }
   }
 
   /* Perfomance */
@@ -139,7 +150,6 @@ class HomeScreen extends Component {
     for (let i = -RANGE; i <= RANGE; i += 0.2){
 
       const x = (i + xOffset) * zoomScale;
-      // const data1 = func1(x, a, b, c);
       const data1 = sine(x, a, b, c);
       const xName = x;
 
@@ -211,14 +221,16 @@ class HomeScreen extends Component {
       data,
       domainX,
       domainY,
-      params
+      params,
+      measureLineX
     }=this.state;
 
     return (
       <div>
-        <LineChart 
+        <LineChart
+          ref={(r)=>{ this.lineChart = r;}}
           width={ windowWidth * 0.98 }
-          height={ windowHeight * 0.78 }
+          height={ windowHeight * 0.68 }
           data={ data }
           stackOffset="sign"
           onClick={ this._handleChartClick.bind(this) }
@@ -227,7 +239,7 @@ class HomeScreen extends Component {
         >
           <XAxis
             dataKey="xName"
-            tick={true}
+            tick={ true }
             type="number"
             tickCount={ 8 }
             allowDataOverflow={ true }
@@ -247,6 +259,7 @@ class HomeScreen extends Component {
           <Line type="monotone" dataKey="data2" stroke="#ff84d8" isAnimationActive={false} dot={false}/>
           <ReferenceLine y={0} stroke="#000" />
           <ReferenceLine x={0} stroke="#000" />
+          <ReferenceLine x={ measureLineX } stroke="#00aa99" />
         </LineChart>
 
         <ChartControls
@@ -267,7 +280,7 @@ class HomeScreen extends Component {
   }
 }
 
-// <Line type="monotone" dataKey="data2" stroke="#8800d8" isAnimationActive={false} dot={false}/>
+// 
 function mapStateToProps(state) {
   return {
     windowWidth: state.windowReducer.width,

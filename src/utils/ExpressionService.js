@@ -9,7 +9,10 @@ export function func1(x, a, b, c){
 }
 
 export function func2(x, a, b, c){
-	const y = a/(x+0.00001)*(1-Math.pow((1+x), (-c)))-b;
+	let y = a/(x+0.00001)*(1-Math.pow((1+x), (-c)))-b;
+	if (y > 1e+9){
+		y = 1e+9;
+	}
 	return y;
 }
 
