@@ -17,6 +17,12 @@ a{
   width: 100%;
 }
 
+.half-width-block{
+  float: left;
+  display: inline-block;
+  width: 100%;
+}
+
 .bottom-margin-1x {
   margin-bottom: 16px;
 }
@@ -34,4 +40,23 @@ a{
 .param-field {
   max-width: 120px;
   background-color: #fff;
+}
+
+.select-field{
+  width: 120px;
+  max-width: 130px;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+@media (min-width: 570px){
+  .half-width-block{
+    width: 50%;
+  }
+}
+
+@media (min-width: 1040px){
+  .half-width-block{
+    width: 33%;
+  }
 }

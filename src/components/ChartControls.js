@@ -25,51 +25,55 @@ export default class ChartControls extends Component {
 		}=this.props;
 
 		return(
-			<div className="full-width-block bottom-margin-1x">
-				<Fab 
-				  color="primary"
-				  aria-label="X +"
-				  onClick={ onXMoveLeft }
-				>
-				  <ArrowLeftIcon/>
-				</Fab>
-				<Fab 
-				  color="primary"
-				  aria-label="X -"
-				  onClick={ onXMoveRight }
-				>
-				  <ArrowRightIcon/>
-				</Fab>
-
-				<Fab 
-				  color="primary"
-				  aria-label="Y +"
-				  onClick={ onYMoveUp }
-				>
-				  <ArrowUpIcon/>
-				</Fab>
-				<Fab 
-				  color="primary"
-				  aria-label="Y -"
-				  onClick={ onYMoveDown }
-				>
-				  <ArrowDownIcon/>
-				</Fab>
-
-				<Fab 
-				  color="primary"
-				  aria-label="Увеличить масштаб"
-				  onClick={ onZoomIn }
-				>
-				  <AddIcon/>
-				</Fab>
-				<Fab 
-				  color="primary"
-				  aria-label="Уменьшить масштаб"
-				  onClick={ onZoomOut }
-				>
-				  <RemoveIcon/>
-				</Fab>
+			<div className="half-width-block bottom-margin-1x">
+				<div className="param-field-container">
+					<Fab
+					  color="primary"
+					  aria-label="X +"
+					  onClick={ onXMoveLeft }
+					>
+					  <ArrowLeftIcon/>
+					</Fab>
+					<Fab 
+					  color="primary"
+					  aria-label="X -"
+					  onClick={ onXMoveRight }
+					>
+					  <ArrowRightIcon/>
+					</Fab>
+				</div>
+				<div className="param-field-container">
+					<Fab 
+					  color="primary"
+					  aria-label="Y +"
+					  onClick={ onYMoveUp }
+					>
+					  <ArrowUpIcon/>
+					</Fab>
+					<Fab 
+					  color="primary"
+					  aria-label="Y -"
+					  onClick={ onYMoveDown }
+					>
+					  <ArrowDownIcon/>
+					</Fab>
+				</div>
+				<div className="param-field-container">
+					<Fab 
+					  color="primary"
+					  aria-label="Увеличить масштаб"
+					  onClick={ onZoomIn }
+					>
+					  <AddIcon/>
+					</Fab>
+					<Fab 
+					  color="primary"
+					  aria-label="Уменьшить масштаб"
+					  onClick={ onZoomOut }
+					>
+					  <RemoveIcon/>
+					</Fab>
+				</div>
 			</div>
 		);
 	}

@@ -1,6 +1,10 @@
 import React, { Component } from "react";
-
 import TextField from '@material-ui/core/TextField';
+
+import{
+	FUNCTION_ONE,
+	FUNCTION_TWO
+} from '../constants/ExpressionsConstants';
 
 export default class ParametersControls extends Component {
 
@@ -30,19 +34,47 @@ export default class ParametersControls extends Component {
 		}
 	}
 
+	_getParametersLabels(selectedFunction){
+
+		const a = "Прибыль";
+		const b = "Инвестиции";
+		let c;
+
+		switch(selectedFunction){
+			case FUNCTION_ONE:{
+				c = "Ставка дисконт.";
+				break;
+			}
+			case FUNCTION_TWO:{
+				c = "Горизонт план.";
+				break;
+			}
+			default:
+				break;
+		}
+
+		return [a, b, c];
+	}
+
 	render() {
+		const{
+			selectedFunction
+		}=this.props;
+
 		const{
 			a,
 			b,
 			c
 		}=this.state;
 
+		const [labelA, labelB, labelC] = this._getParametersLabels(selectedFunction);
+
 		return (
-			<div className="full-width-block bottom-margin-1x">
+			<div className="half-width-block bottom-margin-1x">
 				<div className="param-field-container">
 					<TextField
 						id="a"
-						label="a"
+						label={ labelA }
 						value={ a }
 						onChange={ (e)=>{this._handleParamChange("a", e.target.value)} }
 						type="number"
@@ -58,7 +90,7 @@ export default class ParametersControls extends Component {
 				<div className="param-field-container">
 					<TextField
 						id="b"
-						label="b"
+						label={ labelB }
 						value={ b }
 						onChange={ (e)=>{this._handleParamChange("b", e.target.value)} }
 						type="number"
@@ -74,7 +106,7 @@ export default class ParametersControls extends Component {
 				<div className="param-field-container">
 					<TextField
 						id="c"
-						label="c"
+						label={ labelC }
 						value={ c }
 						onChange={ (e)=>{this._handleParamChange("c", e.target.value)} }
 						type="number"

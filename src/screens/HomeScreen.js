@@ -4,8 +4,8 @@ import { connect } from 'react-redux';
 
 import {
   sine,
-  func1,
-  func2
+  selectFunc,
+  getFuncName
 } from '../utils/ExpressionService';
 
 import { 
@@ -18,7 +18,16 @@ import {
   ReferenceLine,
 } from 'recharts';
 
+import{
+  FUNCTION_ONE,
+  FUNCTION_TWO
+} from '../constants/ExpressionsConstants';
+
+import ChartDot from '../components/ChartDot';
 import ChartControls from '../components/ChartControls';
+import FuncSelector from '../components/FuncSelector';
+import NPV_T_Display from '../components/NPV_T_Display';
+import NPV_R_Display from '../components/NPV_R_Display';
 import ParametersControls from '../components/ParametersControls';
 
 const RANGE = 200;
@@ -31,6 +40,8 @@ class HomeScreen extends Component {
     const localParamA = localStorage.getItem("a");
     const localParamB = localStorage.getItem("b");
     const localParamC = localStorage.getItem("c");
+
+    const selectedFunction = FUNCTION_ONE;
 
     this.state={
       zoomScale: 0.25,
@@ -45,7 +56,16 @@ class HomeScreen extends Component {
         c: !!localParamC ? localParamC : 1
       },
 
-      measureLineX: 0
+      selectedFunction,
+
+      measureLineIsVisible: selectedFunction === FUNCTION_ONE,
+      measureLineX: 0,
+      measureLineY: 0,
+
+      funcResults:{
+        PP: 0,
+        IRR: 0
+      }
     };
 
     this.zoomTimer = null;
@@ -69,7 +89,6 @@ class HomeScreen extends Component {
   _handleZoomIn(){
     let zoomScale = this.state.zoomScale;
     zoomScale = zoomScale / 2;
-    console.log({ zoomScale });
     this.setState({ zoomScale });
     this._setTimerForDataCount();
   }
@@ -77,7 +96,6 @@ class HomeScreen extends Component {
   _handleZoomOut(){
     let zoomScale = this.state.zoomScale;
     zoomScale = zoomScale * 2;
-    console.log({ zoomScale });
     this.setState({ zoomScale });
     this._setTimerForDataCount();
   }
@@ -115,50 +133,73 @@ class HomeScreen extends Component {
   }
 
   _handleChartClick(e){
-    console.log({ e });
+    return;
   }
 
   _handleChartMove(e){
-    const{
-      domainX,
-      zoomScale,
-      xOffset
-    }=this.state;
+    if (this.state.measureLineIsVisible && e !== null && this.lineChart !== null){
+      const{
+        domainX,
+        zoomScale,
+        xOffset,
 
-    if (e !== null && this.lineChart !== null){
+        selectedFunction,
+        params
+      }=this.state;
+
       const chartWidth = this.lineChart.props.width;
 
       const maxX = domainX[1];
-      const minX = domainX[0] * (1 + 140/chartWidth);
+      const minX = domainX[0] * (1 + 142/chartWidth);
 
       const chartX = e.chartX;
       const absoluteX = (chartX + 6)/chartWidth;
       const pointX = absoluteX * maxX + minX * (1-absoluteX);
-      const measureLineX = pointX.toFixed(3);;
-      // console.log({ chartX });
-      this.setState({ measureLineX });
+      const measureLineX = parseFloat(pointX.toFixed(3));
+
+      const selectedFunc = selectFunc(selectedFunction);
+      const measureLineY = parseFloat(selectedFunc(measureLineX, params.a, params.b, params.c).toFixed(3));
+
+      this.setState({ 
+        measureLineX,
+        measureLineY
+      });
     }
   }
 
+  _handleFuncSelect(newFunc){
+    const selectedFunction = newFunc;
+    const measureLineIsVisible = selectedFunction === FUNCTION_ONE;
+    const measureLineX = 0;
+    const measureLineY = 0;
+    this.setState({
+      selectedFunction,
+      measureLineIsVisible,
+
+      measureLineX,
+      measureLineY
+    });
+    this._setTimerForDataCount();
+  }
+
   /* Perfomance */
-  _doTheCount(zoomScale, xOffset, yOffset, params){
+  _countChartPoints(zoomScale, xOffset, yOffset, selectedFunction, params){
     const a = params.a;
     const b = params.b;
     const c = params.c;
 
+    // Add all chart points to array
     const data = [];
     for (let i = -RANGE; i <= RANGE; i += 0.2){
 
       const x = (i + xOffset) * zoomScale;
-      const data1 = sine(x, a, b, c);
       const xName = x;
 
-      // data2
-      const data2 = func2(x, a, b, c);
+      const func = selectFunc(selectedFunction);
+      const data1 = func(x, a, b, c);
 
       data.push({
         data1,
-        data2,
 
         xName
       });
@@ -184,20 +225,78 @@ class HomeScreen extends Component {
     ];
   }
 
+  _countPP(params){
+
+    const a = params.a;
+    const b = params.b;
+    const c = params.c;
+    const func = selectFunc(FUNCTION_ONE);
+
+    for (let x = 0; x <= RANGE; x += 0.001){
+      const y = func(x, a, b, c);
+
+      if (y > -0.01 && y < 0.01){
+        return x.toFixed(3);
+      }
+      else if (y > 0.01){
+        break;
+      }
+    }
+
+    return -1;
+  }
+
+  _countIRR(params){
+
+    const a = params.a;
+    const b = params.b;
+    const c = params.c;
+    const func = selectFunc(FUNCTION_TWO);
+
+    for (let x = 0; x <= RANGE; x += 0.001){
+      const y = func(x, a, b, c);
+
+      if (y < 0.01 && y > -0.01){
+        return x.toFixed(3);
+      }
+      else if (y > -1 && y < -0.01){
+        break;
+      }
+    }
+
+    return -1;
+  }
+
   async _countData(){
     const{
       zoomScale,
       xOffset,
       yOffset,
+      selectedFunction,
       params
     }=this.state;
 
-    const data = await this._doTheCount(zoomScale, xOffset, yOffset, params);
+    const data = await this._countChartPoints(zoomScale, xOffset, yOffset, selectedFunction, params);
     const [domainX, domainY] = await this._countDomains(xOffset, yOffset, zoomScale);
+
+    let PP = 0, IRR = 0;
+    if (selectedFunction === FUNCTION_ONE){
+      PP = await this._countPP(params);
+    }
+    else if (selectedFunction === FUNCTION_TWO){
+      IRR = await this._countIRR(params);
+    }
+
+    const funcResults = {
+      PP,
+      IRR
+    };
+
     this.setState({ 
       data,
       domainX,
-      domainY
+      domainY,
+      funcResults
     });
   }
 
@@ -218,11 +317,18 @@ class HomeScreen extends Component {
     }=this.props;
 
     const{
+      selectedFunction,
+
       data,
       domainX,
       domainY,
       params,
-      measureLineX
+
+      measureLineIsVisible,
+      measureLineX,
+      measureLineY,
+
+      funcResults
     }=this.state;
 
     return (
@@ -256,12 +362,19 @@ class HomeScreen extends Component {
             strokeDasharray="5 5"
           />
           <Line type="monotone" dataKey="data1" stroke="#8884d8" isAnimationActive={false} dot={false}/>
-          <Line type="monotone" dataKey="data2" stroke="#ff84d8" isAnimationActive={false} dot={false}/>
           <ReferenceLine y={0} stroke="#000" />
           <ReferenceLine x={0} stroke="#000" />
-          <ReferenceLine x={ measureLineX } stroke="#00aa99" />
+          { measureLineIsVisible ? 
+            <ReferenceLine x={ measureLineX } stroke="#00aa99" />
+            : ""
+          }
+          <ChartDot
+            chartWidth={ !!this.lineChart ? this.lineChart.props.width : 0 }
+            chartHeight={ !!this.lineChart ? this.lineChart.props.height : 0 }
+            x={ measureLineX }
+            y={ measureLineY }
+          />
         </LineChart>
-
         <ChartControls
           onXMoveLeft={ this._handleXMoveLeft.bind(this) }
           onXMoveRight={ this._handleXMoveRight.bind(this) }
@@ -270,17 +383,32 @@ class HomeScreen extends Component {
           onZoomIn={ this._handleZoomIn.bind(this) }
           onZoomOut={ this._handleZoomOut.bind(this) }
         />
+        <FuncSelector
+          selectedFunction={ selectedFunction }
+          onChange={ this._handleFuncSelect.bind(this) }
+        />
         <ParametersControls
           windowWidth={ windowWidth }
           params={ params }
+          selectedFunction={ selectedFunction }
           onParamChange={ this._handleParamChange.bind(this) }
         />
+        { selectedFunction === FUNCTION_ONE ?
+          <NPV_T_Display
+            x={ measureLineX }
+            NPV={ measureLineY }
+            PP={ funcResults.PP }
+          />
+          :
+          <NPV_R_Display
+            IRR={ funcResults.IRR }
+          />
+        }
       </div>
     );
   }
 }
 
-// 
 function mapStateToProps(state) {
   return {
     windowWidth: state.windowReducer.width,
