@@ -41,7 +41,7 @@ class HomeScreen extends Component {
     const localParamB = localStorage.getItem("b");
     const localParamC = localStorage.getItem("c");
 
-    const selectedFunction = FUNCTION_ONE;
+    const selectedFunction = localStorage.getItem("selectedFunction") || FUNCTION_ONE;
 
     this.state={
       zoomScale: 0.25,
@@ -88,7 +88,7 @@ class HomeScreen extends Component {
     const data = [];
     for (let i = pointStart; i <= RANGE; i += 0.2){
 
-      const x = (i + xOffset) * zoomScale;
+      const x = i * zoomScale;
       const xName = x;
 
       const func = selectFunc(selectedFunction);
@@ -327,6 +327,9 @@ class HomeScreen extends Component {
       measureLineX,
       measureLineY
     });
+    // Save selected func
+    localStorage.setItem("selectedFunction", selectedFunction);
+
     this._setTimerForDataCount();
   }
 

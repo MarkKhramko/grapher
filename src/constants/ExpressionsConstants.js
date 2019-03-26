@@ -1,2 +1,2 @@
-export const FUNCTION_ONE = "FUNCTION_ONE"; // Возрастающий график NPV(T)
-export const FUNCTION_TWO = "FUNCTION_TWO"; // Убывающий график NPV(R)
+export const FUNCTION_ONE = "NPV_T"; // Возрастающий график NPV(T)
+export const FUNCTION_TWO = "NPV_R"; // Убывающий график NPV(R)
