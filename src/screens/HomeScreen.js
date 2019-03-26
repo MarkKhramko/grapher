@@ -76,6 +76,148 @@ class HomeScreen extends Component {
     this._countData();
   }
 
+  /* Operations */
+  _countChartPoints(zoomScale, xOffset, yOffset, selectedFunction, params){
+    const a = params.a;
+    const b = params.b;
+    const c = params.c;
+
+    const pointStart = selectedFunction === FUNCTION_ONE ? -RANGE : 0;
+
+    // Add all chart points to array
+    const data = [];
+    for (let i = pointStart; i <= RANGE; i += 0.2){
+
+      const x = (i + xOffset) * zoomScale;
+      const xName = x;
+
+      const func = selectFunc(selectedFunction);
+      const data1 = func(x, a, b, c);
+
+      data.push({
+        data1,
+
+        xName
+      });
+    }
+
+    return data;
+  }
+
+  _countDomains(xOffset, yOffset, zoomScale){
+    const domainX = [
+      (-RANGE + xOffset) * zoomScale,
+      (RANGE + xOffset) * zoomScale
+    ];
+
+    const domainY = [
+      (-RANGE + yOffset) * zoomScale,
+      (RANGE + yOffset) * zoomScale
+    ];
+
+    return [
+      domainX,
+      domainY
+    ];
+  }
+
+  _countMeasureLineY(measureLineX, params){
+    const selectedFunc = selectFunc(FUNCTION_ONE);
+    const measureLineY = parseFloat(selectedFunc(measureLineX, params.a, params.b, params.c).toFixed(3));
+
+    return measureLineY;
+  }
+
+  _countPP(params){
+
+    const a = params.a;
+    const b = params.b;
+    const c = params.c;
+    const func = selectFunc(FUNCTION_ONE);
+
+    for (let x = 0; x <= RANGE; x += 0.001){
+      const y = func(x, a, b, c);
+
+      if (y > -0.01 && y < 0.01){
+        return x.toFixed(3);
+      }
+      else if (y > 0.01){
+        break;
+      }
+    }
+
+    return -1;
+  }
+
+  _countIRR(params){
+
+    const a = params.a;
+    const b = params.b;
+    const c = params.c;
+    const func = selectFunc(FUNCTION_TWO);
+
+    for (let x = 0; x <= RANGE; x += 0.0001){
+      const y = func(x, a, b, c);
+
+      if (y < 0.01 && y > -0.01){
+        return x.toFixed(3);
+      }
+      else if (y > -2 && y < -0.01){
+        break;
+      }
+    }
+
+    return -1;
+  }
+
+  async _countData(){
+    const{
+      zoomScale,
+      xOffset,
+      yOffset,
+      selectedFunction,
+      params,
+
+      measureLineX
+    }=this.state;
+
+    const data = await this._countChartPoints(zoomScale, xOffset, yOffset, selectedFunction, params);
+    const [domainX, domainY] = await this._countDomains(xOffset, yOffset, zoomScale);
+
+    let PP = 0, IRR = 0;
+    if (selectedFunction === FUNCTION_ONE){
+      PP = await this._countPP(params);
+    }
+    else if (selectedFunction === FUNCTION_TWO){
+      IRR = await this._countIRR(params);
+    }
+
+    const funcResults = {
+      PP,
+      IRR
+    };
+
+    const measureLineY = this._countMeasureLineY(measureLineX, params);
+
+    this.setState({ 
+      data,
+      domainX,
+      domainY,
+      funcResults,
+
+      measureLineY
+    });
+  }
+
+  _setTimerForDataCount(){
+    if(this.zoomTimer !== null)
+      clearTimeout(this.zoomTimer);
+
+    this.zoomTimer = setTimeout(()=>{
+      this._countData();
+    }, 10);
+  }
+
   /* Interactions */
   _handleParamChange(paramKey, value){
     const params = {...this.state.params};
@@ -142,8 +284,6 @@ class HomeScreen extends Component {
         domainX,
         zoomScale,
         xOffset,
-
-        selectedFunction,
         params
       }=this.state;
 
@@ -157,8 +297,7 @@ class HomeScreen extends Component {
       const pointX = absoluteX * maxX + minX * (1-absoluteX);
       const measureLineX = parseFloat(pointX.toFixed(3));
 
-      const selectedFunc = selectFunc(selectedFunction);
-      const measureLineY = parseFloat(selectedFunc(measureLineX, params.a, params.b, params.c).toFixed(3));
+      const measureLineY = this._countMeasureLineY(measureLineX, params);
 
       this.setState({ 
         measureLineX,
@@ -168,11 +307,20 @@ class HomeScreen extends Component {
   }
 
   _handleFuncSelect(newFunc){
+
+    let zoomScale = 0.25;
+    if (newFunc === FUNCTION_TWO){
+      zoomScale = 0.0625;
+    }
+
     const selectedFunction = newFunc;
     const measureLineIsVisible = selectedFunction === FUNCTION_ONE;
     const measureLineX = 0;
     const measureLineY = 0;
+
     this.setState({
+      zoomScale,
+
       selectedFunction,
       measureLineIsVisible,
 
@@ -180,133 +328,6 @@ class HomeScreen extends Component {
       measureLineY
     });
     this._setTimerForDataCount();
-  }
-
-  /* Perfomance */
-  _countChartPoints(zoomScale, xOffset, yOffset, selectedFunction, params){
-    const a = params.a;
-    const b = params.b;
-    const c = params.c;
-
-    // Add all chart points to array
-    const data = [];
-    for (let i = -RANGE; i <= RANGE; i += 0.2){
-
-      const x = (i + xOffset) * zoomScale;
-      const xName = x;
-
-      const func = selectFunc(selectedFunction);
-      const data1 = func(x, a, b, c);
-
-      data.push({
-        data1,
-
-        xName
-      });
-    }
-
-    return data;
-  }
-
-  _countDomains(xOffset, yOffset, zoomScale){
-    const domainX = [
-      (-RANGE + xOffset) * zoomScale,
-      (RANGE + xOffset) * zoomScale
-    ];
-
-    const domainY = [
-      (-RANGE + yOffset) * zoomScale,
-      (RANGE + yOffset) * zoomScale
-    ];
-
-    return [
-      domainX,
-      domainY
-    ];
-  }
-
-  _countPP(params){
-
-    const a = params.a;
-    const b = params.b;
-    const c = params.c;
-    const func = selectFunc(FUNCTION_ONE);
-
-    for (let x = 0; x <= RANGE; x += 0.001){
-      const y = func(x, a, b, c);
-
-      if (y > -0.01 && y < 0.01){
-        return x.toFixed(3);
-      }
-      else if (y > 0.01){
-        break;
-      }
-    }
-
-    return -1;
-  }
-
-  _countIRR(params){
-
-    const a = params.a;
-    const b = params.b;
-    const c = params.c;
-    const func = selectFunc(FUNCTION_TWO);
-
-    for (let x = 0; x <= RANGE; x += 0.001){
-      const y = func(x, a, b, c);
-
-      if (y < 0.01 && y > -0.01){
-        return x.toFixed(3);
-      }
-      else if (y > -1 && y < -0.01){
-        break;
-      }
-    }
-
-    return -1;
-  }
-
-  async _countData(){
-    const{
-      zoomScale,
-      xOffset,
-      yOffset,
-      selectedFunction,
-      params
-    }=this.state;
-
-    const data = await this._countChartPoints(zoomScale, xOffset, yOffset, selectedFunction, params);
-    const [domainX, domainY] = await this._countDomains(xOffset, yOffset, zoomScale);
-
-    let PP = 0, IRR = 0;
-    if (selectedFunction === FUNCTION_ONE){
-      PP = await this._countPP(params);
-    }
-    else if (selectedFunction === FUNCTION_TWO){
-      IRR = await this._countIRR(params);
-    }
-
-    const funcResults = {
-      PP,
-      IRR
-    };
-
-    this.setState({ 
-      data,
-      domainX,
-      domainY,
-      funcResults
-    });
-  }
-
-  _setTimerForDataCount(){
-    if(this.zoomTimer !== null)
-      clearTimeout(this.zoomTimer);
-
-    this.zoomTimer = setTimeout(()=>{
-      this._countData();
-    }, 10);
   }
 
   /* Render */

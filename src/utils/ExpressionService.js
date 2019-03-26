@@ -14,14 +14,8 @@ export function NPV_T(x, a, b, c){
 }
 
 export function NPV_R(x, a, b, c){
-	let y = a/(x+0.00001)*(1-Math.pow((1+x), (-c)))-b;
-	if (y > 1e+9){
-		y = 1e+9;
-	}
-	else if(y < -1e+9){
-		y = -1e+9;
-	}
-	return y;
+	const y = a/(x+0.00001)*(1-Math.pow((1+x), (-c)))-b;
+	return y;	
 }
 
 export const selectFunc = (functionConst)=>{
@@ -47,7 +41,7 @@ export const getFuncName = (functionConst)=>{
 			break;
 		}
 		case FUNCTION_TWO:{
-			return "NPV(R)";
+			return "NPV(r)";
 			break;
 		}
 		default:
