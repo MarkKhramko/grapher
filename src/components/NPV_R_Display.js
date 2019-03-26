@@ -4,10 +4,6 @@ import TextField from '@material-ui/core/TextField';
 
 export default class NPV_R_Display extends Component {
 
-	constructor(props){
-		super(props);
-	}
-
 	render(){
 		const{
 			IRR
