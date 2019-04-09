@@ -26,8 +26,8 @@ import{
 import ChartDot from '../components/ChartDot';
 import ChartControls from '../components/ChartControls';
 import FuncSelector from '../components/FuncSelector';
-import NPV_T_Display from '../components/NPV_T_Display';
-import NPV_R_Display from '../components/NPV_R_Display';
+import NPVDisplay from '../components/NPVDisplay';
+import IRRDisplay from '../components/IRRDisplay';
 import ParametersControls from '../components/ParametersControls';
 
 const RANGE = 200;
@@ -42,10 +42,11 @@ class HomeScreen extends Component {
     const localParamC = localStorage.getItem("c");
 
     const selectedFunction = localStorage.getItem("selectedFunction") || FUNCTION_ONE;
+    const zoomScale = 0.25;
 
     this.state={
-      zoomScale: 0.25,
-      xOffset: 0,
+      zoomScale,
+      xOffset: RANGE * 0.9,
       yOffset: 0,
 
       data:[],
@@ -86,7 +87,7 @@ class HomeScreen extends Component {
 
     // Add all chart points to array
     const data = [];
-    for (let i = pointStart; i <= RANGE; i += 0.2){
+    for (let i = pointStart; i <= RANGE * 2; i += 0.2){
 
       const x = i * zoomScale;
       const xName = x;
@@ -293,7 +294,8 @@ class HomeScreen extends Component {
       const minX = domainX[0] * (1 + 142/chartWidth);
 
       const chartX = e.chartX;
-      const absoluteX = (chartX + 6)/chartWidth;
+      const absoluteX = (chartX - RANGE * zoomScale * 0.8)/chartWidth;
+
       const pointX = absoluteX * maxX + minX * (1-absoluteX);
       const measureLineX = parseFloat(pointX.toFixed(3));
 
@@ -418,13 +420,13 @@ class HomeScreen extends Component {
           onParamChange={ this._handleParamChange.bind(this) }
         />
         { selectedFunction === FUNCTION_ONE ?
-          <NPV_T_Display
+          <NPVDisplay
             x={ measureLineX }
             NPV={ measureLineY }
             PP={ funcResults.PP }
           />
           :
-          <NPV_R_Display
+          <IRRDisplay
             IRR={ funcResults.IRR }
           />
         }

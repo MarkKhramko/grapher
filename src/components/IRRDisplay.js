@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import TextField from '@material-ui/core/TextField';
 
-export default class NPV_R_Display extends Component {
+export default class IRRDisplay extends Component {
 
 	render(){
 		const{
