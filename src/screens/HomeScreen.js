@@ -288,13 +288,13 @@ class HomeScreen extends Component {
         params
       }=this.state;
 
-      const chartWidth = this.lineChart.props.width;
+      const chartWidth = (this.lineChart.props.width - 60);
 
       const maxX = domainX[1];
-      const minX = domainX[0] * (1 + 142/chartWidth);
+      const minX = domainX[0];
 
-      const chartX = e.chartX;
-      const absoluteX = (chartX - RANGE * zoomScale * 0.8)/chartWidth;
+      const chartX = e.chartX - 60;
+      const absoluteX = chartX/chartWidth;
 
       const pointX = absoluteX * maxX + minX * (1-absoluteX);
       const measureLineX = parseFloat(pointX.toFixed(3));
