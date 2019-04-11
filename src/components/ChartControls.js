@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 
 import Fab from '@material-ui/core/Fab';
 import ArrowUpIcon from '@material-ui/icons/ArrowDropUp';
@@ -8,73 +8,67 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 
-export default class ChartControls extends Component {
+export default function ChartControls(props){
 
-	constructor(props){
-		super(props);
-	}
+	const{
+		onXMoveLeft,
+		onXMoveRight,
+		onYMoveUp,
+		onYMoveDown,
+		onZoomIn,
+		onZoomOut
+	}=props;
 
-	render(){
-		const{
-			onXMoveLeft,
-			onXMoveRight,
-			onYMoveUp,
-			onYMoveDown,
-			onZoomIn,
-			onZoomOut
-		}=this.props;
-
-		return(
-			<div className="half-width-block bottom-margin-1x">
-				<div className="param-field-container">
-					<Fab
-					  color="primary"
-					  aria-label="X +"
-					  onClick={ onXMoveLeft }
-					>
-					  <ArrowLeftIcon/>
-					</Fab>
-					<Fab 
-					  color="primary"
-					  aria-label="X -"
-					  onClick={ onXMoveRight }
-					>
-					  <ArrowRightIcon/>
-					</Fab>
-				</div>
-				<div className="param-field-container">
-					<Fab 
-					  color="primary"
-					  aria-label="Y +"
-					  onClick={ onYMoveUp }
-					>
-					  <ArrowUpIcon/>
-					</Fab>
-					<Fab 
-					  color="primary"
-					  aria-label="Y -"
-					  onClick={ onYMoveDown }
-					>
-					  <ArrowDownIcon/>
-					</Fab>
-				</div>
-				<div className="param-field-container">
-					<Fab 
-					  color="primary"
-					  aria-label="Увеличить масштаб"
-					  onClick={ onZoomIn }
-					>
-					  <AddIcon/>
-					</Fab>
-					<Fab 
-					  color="primary"
-					  aria-label="Уменьшить масштаб"
-					  onClick={ onZoomOut }
-					>
-					  <RemoveIcon/>
-					</Fab>
-				</div>
+	return(
+		<div className="half-width-block top-margin-1px bottom-margin-1x">
+			<div className="param-field-container">
+				<Fab
+				  color="primary"
+				  aria-label="X +"
+				  onClick={ onXMoveLeft }
+				>
+				  <ArrowLeftIcon/>
+				</Fab>
+				<Fab 
+				  color="primary"
+				  aria-label="X -"
+				  onClick={ onXMoveRight }
+				>
+				  <ArrowRightIcon/>
+				</Fab>
 			</div>
-		);
-	}
+			<div className="param-field-container">
+				<Fab 
+				  color="primary"
+				  aria-label="Y +"
+				  onClick={ onYMoveUp }
+				>
+				  <ArrowUpIcon/>
+				</Fab>
+				<Fab 
+				  color="primary"
+				  aria-label="Y -"
+				  onClick={ onYMoveDown }
+				>
+				  <ArrowDownIcon/>
+				</Fab>
+			</div>
+			<div className="param-field-container">
+				<Fab 
+				  color="primary"
+				  aria-label="Увеличить масштаб"
+				  onClick={ onZoomIn }
+				>
+				  <AddIcon/>
+				</Fab>
+				<Fab 
+				  color="primary"
+				  aria-label="Уменьшить масштаб"
+				  onClick={ onZoomOut }
+				>
+				  <RemoveIcon/>
+				</Fab>
+			</div>
+		</div>
+	);
 }

@@ -1,18 +1,14 @@
 import React, { Component } from "react";
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import {
-  sine,
-  selectFunc,
-  getFuncName
+  selectFunc
 } from '../utils/ExpressionService';
 
 import { 
   CartesianGrid,
   LineChart,
   Line,
-  ResponsiveContainer,
   XAxis,
   YAxis,
   ReferenceLine,
@@ -23,7 +19,6 @@ import{
   FUNCTION_TWO
 } from '../constants/ExpressionsConstants';
 
-import ChartDot from '../components/ChartDot';
 import ChartControls from '../components/ChartControls';
 import FuncSelector from '../components/FuncSelector';
 import NPVDisplay from '../components/NPVDisplay';
@@ -283,8 +278,6 @@ class HomeScreen extends Component {
     if (this.state.measureLineIsVisible && e !== null && this.lineChart !== null){
       const{
         domainX,
-        zoomScale,
-        xOffset,
         params
       }=this.state;
 
@@ -360,7 +353,7 @@ class HomeScreen extends Component {
     return (
       <div>
         <LineChart
-          ref={(r)=>{ this.lineChart = r;}}
+          ref={(r)=>{ this.lineChart = r }}
           width={ windowWidth * 0.98 }
           height={ windowHeight * 0.68 }
           data={ data }
@@ -387,19 +380,33 @@ class HomeScreen extends Component {
             stroke="#ddd"
             strokeDasharray="5 5"
           />
-          <Line type="monotone" dataKey="data1" stroke="#8884d8" isAnimationActive={false} dot={false}/>
+          <Line
+            type="monotone"
+            dataKey="data1"
+            stroke="#8884d8"
+            strokeWidth={ 2 }
+            isAnimationActive={ false }
+            dot={ false }
+          />
           <ReferenceLine y={0} stroke="#000" />
           <ReferenceLine x={0} stroke="#000" />
           { measureLineIsVisible ? 
-            <ReferenceLine x={ measureLineX } stroke="#00aa99" />
-            : ""
+            <ReferenceLine
+              x={ measureLineX }
+              stroke="#00aa99"
+              strokeWidth={ 1.5 }
+            />
+            : null
           }
-          <ChartDot
-            chartWidth={ !!this.lineChart ? this.lineChart.props.width : 0 }
-            chartHeight={ !!this.lineChart ? this.lineChart.props.height : 0 }
-            x={ measureLineX }
-            y={ measureLineY }
-          />
+          {
+            measureLineIsVisible ? 
+            <ReferenceLine
+              y={ measureLineY }
+              stroke="#00aa99"
+              strokeWidth={ 1.5 }
+            />
+            : null
+          }
         </LineChart>
         <ChartControls
           onXMoveLeft={ this._handleXMoveLeft.bind(this) }
@@ -442,11 +449,6 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {};
-}
-
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(HomeScreen);

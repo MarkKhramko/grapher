@@ -22,15 +22,12 @@ export const selectFunc = (functionConst)=>{
 	switch(functionConst){
 		case FUNCTION_ONE:{
 			return NPV_T;
-			break;
 		}
 		case FUNCTION_TWO:{
 			return NPV_R;
-			break;
 		}
 		default:
 			return ()=>{};
-			break;
 	}
 };
 
@@ -38,14 +35,11 @@ export const getFuncName = (functionConst)=>{
 	switch(functionConst){
 		case FUNCTION_ONE:{
 			return "NPV(T)";
-			break;
 		}
 		case FUNCTION_TWO:{
 			return "NPV(r)";
-			break;
 		}
 		default:
 			return "-";
-			break;
 	}
 };

@@ -27,6 +27,10 @@ a{
   margin-bottom: 16px;
 }
 
+.top-margin-1px {
+  margin-top: 16px;
+}
+
 .chart{
   width: 100%;
   background-color: #fff;

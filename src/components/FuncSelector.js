@@ -12,7 +12,6 @@ import{
 } from '../constants/ExpressionsConstants';
 
 import {
-  selectFunc,
   getFuncName
 } from '../utils/ExpressionService';
 
@@ -84,7 +83,7 @@ export default class FuncSelector extends Component {
 		const funcName = getFuncName(selectedFunction);
 
 		return(
-			<div className="half-width-block bottom-margin-1x">
+			<div className="half-width-block top-margin-1px bottom-margin-1x">
 				<FormControl
 					variant="outlined"
 					className="select-field"
