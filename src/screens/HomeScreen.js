@@ -134,7 +134,7 @@ class HomeScreen extends Component {
     for (let x = 0; x <= RANGE; x += 0.001){
       const y = func(x, a, b, c);
 
-      if (y > -0.01 && y < 0.01){
+      if (y > -0.1 && y < 0.1){
         return x.toFixed(3);
       }
       else if (y > 0.01){
