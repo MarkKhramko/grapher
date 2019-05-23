@@ -15,13 +15,13 @@ export default class NPVDisplay extends Component {
 			<div className="full-width-block bottom-margin-1x">
 				<div className="param-field-container">
 					<TextField
-						label="T"
+						label="Ед. времени"
 						value={ x }
 						type="number"
 						InputLabelProps={{
 							shrink: true,
 						}}
-						className="param-field"
+						className="param-field wide"
 						margin="normal"
 						variant="outlined"
 						readOnly
@@ -29,13 +29,13 @@ export default class NPVDisplay extends Component {
 				</div>
 				<div className="param-field-container">
 					<TextField
-						label="NPV"
+						label="Чистая приведённая стоимость"
 						value={ NPV }
 						type="number"
 						InputLabelProps={{
 							shrink: true,
 						}}
-						className="param-field"
+						className="param-field wide"
 						margin="normal"
 						variant="outlined"
 						readOnly
@@ -43,13 +43,13 @@ export default class NPVDisplay extends Component {
 				</div>
 				<div className="param-field-container">
 					<TextField
-						label="PP"
+						label="Срок окупаемости"
 						value={ PP }
 						type="number"
 						InputLabelProps={{
 							shrink: true,
 						}}
-						className="param-field"
+						className="param-field wide"
 						margin="normal"
 						variant="outlined"
 						readOnly

@@ -16,13 +16,13 @@ export default class IRRDisplay extends Component {
 			<div className="full-width-block bottom-margin-1x">
 				<div className="param-field-container">
 					<TextField
-						label="IRR"
+						label="Внутренняя норма доходности"
 						value={ value }
 						type={ type }
 						InputLabelProps={{
 							shrink: true,
 						}}
-						className="param-field"
+						className="param-field wide"
 						margin="normal"
 						variant="outlined"
 						readOnly

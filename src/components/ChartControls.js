@@ -20,7 +20,7 @@ export default function ChartControls(props){
 	}=props;
 
 	return(
-		<div className="half-width-block top-margin-1px bottom-margin-1x">
+		<div className="chart-controls-left-block top-margin-1px bottom-margin-1x">
 			<div className="param-field-container">
 				<Fab
 				  color="primary"

@@ -83,7 +83,7 @@ export default class FuncSelector extends Component {
 		const funcName = getFuncName(selectedFunction);
 
 		return(
-			<div className="half-width-block top-margin-1px bottom-margin-1x">
+			<div className="chart-controls-func-selector top-margin-1px bottom-margin-1x">
 				<FormControl
 					variant="outlined"
 					className="select-field"

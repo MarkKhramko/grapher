@@ -42,8 +42,12 @@ a{
 }
 
 .param-field {
-  max-width: 120px;
+  max-width: 130px;
   background-color: #fff;
+}
+
+.param-field.wide {
+  max-width: 180px;
 }
 
 .select-field{
@@ -54,6 +58,24 @@ a{
 }
 
 @media (min-width: 570px){
+  .chart-controls-left-block{
+    float: left;
+    display: inline-block;
+    width: 35%;
+  }
+
+  .chart-controls-func-selector {
+    float: left;
+    display: inline-block;
+    width: 25%;
+  }
+
+  .chart-controls-right-block{
+    float: right;
+    display: inline-block;
+    width: 40%;
+  }
+
   .half-width-block{
     width: 50%;
   }

@@ -70,7 +70,7 @@ export default class ParametersControls extends Component {
 		const [labelA, labelB, labelC] = this._getParametersLabels(selectedFunction);
 
 		return (
-			<div className="half-width-block bottom-margin-1x">
+			<div className="chart-controls-right-block bottom-margin-1x">
 				<div className="param-field-container">
 					<TextField
 						id="a"
